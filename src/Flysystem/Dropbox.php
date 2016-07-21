@@ -13,7 +13,7 @@ use Drupal\flysystem\Flysystem\Adapter\MissingAdapter;
 use Drupal\flysystem\Plugin\FlysystemPluginInterface;
 use Drupal\flysystem\Plugin\FlysystemUrlTrait;
 use Drupal\flysystem\Plugin\ImageStyleGenerationTrait;
-use Guzzle\Http\Url;
+use GuzzleHttp\Psr7\Uri;
 use League\Flysystem\Dropbox\DropboxAdapter;
 
 /**
@@ -167,10 +167,9 @@ class Dropbox implements FlysystemPluginInterface {
       return FALSE;
     }
 
-    $url = Url::factory($link);
-    $url->getQuery()->set('dl', 1);
+    $uri = (new Uri($link))->withHost('dl.dropboxusercontent.com');
 
-    return (string) $url;
+    return (string) Uri::withoutQueryValue($uri, 'dl');
   }
 
   /**
