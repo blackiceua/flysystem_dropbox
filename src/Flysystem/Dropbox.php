@@ -7,14 +7,14 @@
 
 namespace Drupal\flysystem_dropbox\Flysystem;
 
-use Dropbox\Client;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\flysystem\Flysystem\Adapter\MissingAdapter;
 use Drupal\flysystem\Plugin\FlysystemPluginInterface;
 use Drupal\flysystem\Plugin\FlysystemUrlTrait;
 use Drupal\flysystem\Plugin\ImageStyleGenerationTrait;
 use GuzzleHttp\Psr7\Uri;
-use League\Flysystem\Dropbox\DropboxAdapter;
+use Spatie\Dropbox\Client;
+use Spatie\FlysystemDropbox\DropboxAdapter;
 
 /**
  * Drupal plugin for the "Dropbox" Flysystem adapter.
@@ -32,7 +32,7 @@ class Dropbox implements FlysystemPluginInterface {
   /**
    * The Dropbox client.
    *
-   * @var \Dropbox\Client
+   * @var \Spatie\Dropbox\Client
    */
   protected $client;
 
@@ -69,8 +69,6 @@ class Dropbox implements FlysystemPluginInterface {
    *
    * @param array $configuration
    *   Plugin configuration array.
-   * @param \GuzzleHttp\ClientInterface $http_client
-   *   The HTTP client.
    */
   public function __construct(array $configuration) {
     $this->prefix = isset($configuration['prefix']) ? $configuration['prefix'] : '';
@@ -159,7 +157,7 @@ class Dropbox implements FlysystemPluginInterface {
    */
   protected function getSharableLink($target) {
     try {
-      $link = $this->getClient()->createShareableLink('/' . $target);
+      $link = $this->getClient()->createSharedLinkWithSettings('/' . $target);
     }
     catch (\Exception $e) {}
 
@@ -175,12 +173,12 @@ class Dropbox implements FlysystemPluginInterface {
   /**
    * Returns the Dropbox client.
    *
-   * @return \Dropbox\Client
+   * @return \Spatie\Dropbox\Client
    *   The Dropbox client.
    */
   protected function getClient() {
     if (!isset($this->client)) {
-      $this->client = new Client($this->token, $this->clientId);
+      $this->client = new Client($this->token);
     }
 
     return $this->client;
